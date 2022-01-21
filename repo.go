@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"io"
@@ -31,6 +32,7 @@ func runRepo(args []string, w io.Writer) error {
 		if err != nil && !os.IsNotExist(err) {
 			return fmt.Errorf("cannot read %s: %w", file, err)
 		}
+		b = bytes.TrimSpace(b)
 		if len(b) > 0 {
 			fmt.Fprintf(w, "%s\n", b)
 		}

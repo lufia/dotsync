@@ -16,7 +16,7 @@ func TestRunRepoRead(t *testing.T) {
 	}{
 		{file: "testdata/repo/empty.txtar", s: ""},
 		{file: "testdata/repo/blank.txtar", s: ""},
-		// TODO: valid
+		{file: "testdata/repo/valid.txtar", s: "src/dotfiles\n"},
 		// TODO: write
 	}
 	for _, tt := range tests {
