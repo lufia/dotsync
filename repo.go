@@ -37,7 +37,10 @@ func runRepo(args []string, w io.Writer) error {
 			fmt.Fprintf(w, "%s\n", b)
 		}
 	} else {
-		fmt.Fprintln(w, "dir:", *dir)
+		err := os.WriteFile(file, []byte(*dir+"\n"), 0644)
+		if err != nil {
+			return fmt.Errorf("cannot write %s: %w", file, err)
+		}
 	}
 	return nil
 }
