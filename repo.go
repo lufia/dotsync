@@ -28,7 +28,7 @@ func runRepo(args []string, w io.Writer) error {
 	file := filepath.Join(*root, "repo")
 	if *dir == "" {
 		b, err := os.ReadFile(file)
-		if err != nil {
+		if err != nil && !os.IsNotExist(err) {
 			return fmt.Errorf("cannot read %s: %w", file, err)
 		}
 		if len(b) > 0 {
