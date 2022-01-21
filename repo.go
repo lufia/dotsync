@@ -9,7 +9,7 @@ import (
 )
 
 func runRepo(args []string, w io.Writer) error {
-	f := NewFlagSet("repo")
+	f := NewFlagSet("repo", "")
 	dir := f.String("w", "", "repository `dir`ectory")
 
 	if err := f.Parse(args); err != nil {

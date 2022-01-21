@@ -9,7 +9,8 @@ import (
 )
 
 var commands = map[string]func(args []string, w io.Writer) error{
-	"repo": runRepo,
+	"repo":    runRepo,
+	"install": runInstall,
 }
 
 func main() {

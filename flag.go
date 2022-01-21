@@ -9,10 +9,14 @@ import (
 
 const rootFlagKey = "test.r"
 
-func NewFlagSet(name string) *flag.FlagSet {
+func NewFlagSet(name, args string) *flag.FlagSet {
 	f := flag.NewFlagSet(name, flag.ExitOnError)
 	f.Usage = func() {
-		fmt.Fprintf(f.Output(), "usage: %s [options]\n", name)
+		fmt.Fprintf(f.Output(), "usage: %s [options]", name)
+		if args != "" {
+			fmt.Fprintf(f.Output(), " %s", args)
+		}
+		fmt.Fprintf(f.Output(), "\n")
 		f.PrintDefaults()
 	}
 	if flag.Lookup("test.v") != nil {
