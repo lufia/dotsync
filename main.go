@@ -8,13 +8,14 @@ import (
 	"os"
 )
 
-var commands = map[string]func(args []string, w io.Writer) error{
+var commands = map[string]func(r *Repository, args []string, w io.Writer) error{
 	"repo":    runRepo,
 	"install": runInstall,
 }
 
 func main() {
 	log.SetFlags(0)
+	log.SetPrefix("dotsync: ")
 	flag.Usage = usage
 	flag.Parse()
 	args := flag.Args()
@@ -27,7 +28,11 @@ func main() {
 		usage()
 		os.Exit(2)
 	}
-	if err := f(args[1:], os.Stdout); err != nil {
+	r, err := OpenRepository()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := f(r, args[1:], os.Stdout); err != nil {
 		log.Fatal(err)
 	}
 }

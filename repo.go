@@ -1,34 +1,29 @@
 package main
 
 import (
-	"bytes"
+	"errors"
 	"fmt"
 	"io"
-	"os"
-	"path/filepath"
 )
 
-func runRepo(args []string, w io.Writer) error {
+func runRepo(r *Repository, args []string, w io.Writer) error {
 	f := NewFlagSet("repo", "")
 	dir := f.String("w", "", "repository `dir`ectory")
 
 	if err := f.Parse(args); err != nil {
-		return fmt.Errorf("can't parse flags: %w", err)
+		return err
 	}
-	file := filepath.Join(RootDir(f), "repo")
 	if *dir == "" {
-		b, err := os.ReadFile(file)
-		if err != nil && !os.IsNotExist(err) {
-			return fmt.Errorf("cannot read %s: %w", file, err)
+		s, err := r.Path()
+		if err != nil && !errors.Is(err, ErrNotInitialized) {
+			return err
 		}
-		b = bytes.TrimSpace(b)
-		if len(b) > 0 {
-			fmt.Fprintf(w, "%s\n", b)
+		if s != "" {
+			fmt.Fprintf(w, "%s\n", s)
 		}
 	} else {
-		err := os.WriteFile(file, []byte(*dir+"\n"), 0644)
-		if err != nil {
-			return fmt.Errorf("cannot write %s: %w", file, err)
+		if err := r.PutPath(*dir); err != nil {
+			return err
 		}
 	}
 	return nil

@@ -1,4 +1,0 @@
--- repo --
-aaa/bbb
--- repo.golden --
-src/dotfiles
