@@ -1,0 +1,8 @@
+-- dotfiles/.exrc --
+set ts=8
+-- dotfiles/lib/profile --
+font=/mnt/font/GoMono/22a/font
+-- .local/state/dotsync/store/.exrc --
+7970153163bfaaba0780d262461fb7b692380f6d249da3aef109f93ba2a7d643 .exrc
+-- .local/state/dotsync/store/lib/profile --
+8218f9d74a96ef2e70a2ffb069418dacce41e00aed892ea8a8968272ea03ad9e lib/profile

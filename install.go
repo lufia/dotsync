@@ -12,7 +12,7 @@ func runInstall(r *Repository, args []string, w io.Writer) error {
 	f := NewFlagSet("install", "dotfile [path]")
 
 	if err := f.Parse(args); err != nil {
-		return fmt.Errorf("can't parse flags: %w", err)
+		return err
 	}
 	args = f.Args()
 	if len(args) != 2 {
