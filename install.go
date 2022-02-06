@@ -19,21 +19,35 @@ func runInstall(r *Repository, args []string, w io.Writer) error {
 		f.Usage()
 		os.Exit(2)
 	}
-	slug, err := r.Slug(args[0])
+	return r.CopyFile(args[1], args[0], false)
+}
+
+func (r *Repository) CopyFile(dest, p string, overwrite bool) error {
+	slug, err := r.Slug(p)
 	if err != nil {
 		return err
 	}
-	fin, err := os.Open(args[0])
+	dest, err = filepath.Abs(dest)
+	if err != nil {
+		return err
+	}
+	fin, err := os.Open(p)
 	if err != nil {
 		return err
 	}
 	defer fin.Close()
 
-	dir := filepath.Dir(args[1])
+	dir := filepath.Dir(dest)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
-	fout, err := os.OpenFile(args[1], os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0644)
+	flags := os.O_WRONLY | os.O_CREATE
+	if overwrite {
+		flags |= os.O_TRUNC
+	} else {
+		flags |= os.O_EXCL
+	}
+	fout, err := os.OpenFile(dest, flags, 0644)
 	if err != nil {
 		return err
 	}
@@ -45,7 +59,15 @@ func runInstall(r *Repository, args []string, w io.Writer) error {
 	if err := fout.Sync(); err != nil {
 		return err
 	}
-	s := fmt.Sprintf("%x %s\n", h.Sum(nil), slug)
+	s := fmt.Sprintf("%x %s\n", h.Sum(nil), dest)
 	file := r.StateFile(slug)
-	return os.WriteFile(file, []byte(s), 0644)
+	return writeFile(file, []byte(s), 0644)
+}
+
+func writeFile(name string, data []byte, perm os.FileMode) error {
+	dir := filepath.Dir(name)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
+	}
+	return os.WriteFile(name, data, perm)
 }

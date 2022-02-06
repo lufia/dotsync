@@ -17,13 +17,14 @@ func initFS(t testing.TB, file string) string {
 		t.Fatal(err)
 	}
 	rootDir := t.TempDir()
+	os.Setenv("TEST_DIR", rootDir)
+	t.Cleanup(func() {
+		os.Unsetenv("TEST_DIR")
+	})
 	for _, f := range a.Files {
-		dir := filepath.Join(rootDir, filepath.Dir(f.Name))
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			t.Fatal(err)
-		}
 		name := filepath.Join(rootDir, f.Name)
-		if err := os.WriteFile(name, f.Data, 0644); err != nil {
+		s := os.ExpandEnv(string(f.Data))
+		if err := writeFile(name, []byte(s), 0644); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -55,4 +56,12 @@ func expandTilde(dir, s string) string {
 		return filepath.Join(dir, s[2:])
 	}
 	return s
+}
+
+func expandTildeSlice(dir string, paths []string) []string {
+	a := make([]string, len(paths))
+	for i, s := range paths {
+		a[i] = expandTilde(dir, s)
+	}
+	return a
 }

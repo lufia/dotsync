@@ -23,7 +23,7 @@ func TestRunInstall(t *testing.T) {
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			dir := initFS(t, tt.file)
-			stateDir := filepath.Join(dir, ".local/state")
+			stateDir := filepath.Join(dir, ".local/state/dotsync")
 			r := &Repository{
 				StateDir: stateDir,
 				rootDir:  filepath.Join(dir, "dotfiles"),
@@ -38,7 +38,7 @@ func TestRunInstall(t *testing.T) {
 			}
 			testFileContent(t, args[0], args[1])
 
-			file := filepath.Join(stateDir, "dotsync/store/.exrc")
+			file := filepath.Join(stateDir, "store/.exrc")
 			testFileContent(t, file+".golden", file)
 		})
 	}

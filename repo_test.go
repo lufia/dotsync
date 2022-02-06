@@ -74,7 +74,7 @@ func TestRunRepoWrite(t *testing.T) {
 			if s := w.String(); s != "" {
 				t.Errorf("%s: got %s but do not want any outputs\n", tt.file, s)
 			}
-			file := filepath.Join(dir, "dotsync", "repo")
+			file := filepath.Join(dir, "repo")
 			data, err := os.ReadFile(file)
 			if err != nil {
 				t.Fatal(err)

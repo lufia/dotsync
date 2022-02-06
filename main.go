@@ -12,6 +12,7 @@ var commands = map[string]func(r *Repository, args []string, w io.Writer) error{
 	"repo":    runRepo,
 	"install": runInstall,
 	"changes": runChanges,
+	"pull":    runPull,
 }
 
 func main() {
