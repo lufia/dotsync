@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 )
 
@@ -105,6 +106,7 @@ func (r *Repository) StateFile(slug string) string {
 
 type State struct {
 	Hash   string
+	Mode   os.FileMode
 	Target string
 	Source string
 }
@@ -125,17 +127,22 @@ func (r *Repository) ReadState(file string) (*State, error) {
 		return nil, err
 	}
 	s := strings.TrimSpace(string(data))
-	a := strings.SplitN(s, " ", 2)
-	if len(a) != 2 {
+	a := strings.SplitN(s, " ", 3)
+	if len(a) != 3 {
 		return nil, fmt.Errorf("%s: state is corrupted", file)
 	}
 	dir, err := r.Path()
 	if err != nil {
 		return nil, err
 	}
+	mode, err := strconv.ParseInt(a[1], 8, 0)
+	if err != nil {
+		return nil, err
+	}
 	return &State{
 		Hash:   a[0],
-		Target: a[1],
+		Mode:   os.FileMode(mode),
+		Target: a[2],
 		Source: filepath.Join(dir, slug),
 	}, nil
 }

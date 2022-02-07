@@ -32,11 +32,11 @@ func runPull(r *Repository, args []string, w io.Writer) error {
 		if err != nil {
 			return err
 		}
-		modeDiff, err := isModeChanged(state.Target, state.Source)
+		ok, err := isModeEqual(state.Source, state.Mode)
 		if err != nil {
 			return err
 		}
-		if !modeDiff && h == state.Hash {
+		if ok && h == state.Hash {
 			return nil
 		}
 

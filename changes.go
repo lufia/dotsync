@@ -29,27 +29,22 @@ func runChanges(r *Repository, args []string, w io.Writer) error {
 		if err != nil {
 			return err
 		}
-		modeDiff, err := isModeChanged(state.Target, state.Source)
+		ok, err := isModeEqual(state.Target, state.Mode)
 		if err != nil {
 			return err
 		}
-		if modeDiff || h != state.Hash {
+		if !ok || h != state.Hash {
 			fmt.Fprintln(w, state.Target)
 		}
 		return nil
 	})
 }
 
-func isModeChanged(s1, s2 string) (bool, error) {
-	f1, err := os.Stat(s1)
+func isModeEqual(file string, mode os.FileMode) (bool, error) {
+	fi, err := os.Stat(file)
 	if err != nil {
 		return false, err
 	}
-	f2, err := os.Stat(s2)
-	if err != nil {
-		return false, err
-	}
-	m1 := f1.Mode() & os.ModePerm
-	m2 := f2.Mode() & os.ModePerm
-	return m1 != m2, nil
+	m := fi.Mode() & os.ModePerm
+	return m == mode, nil
 }

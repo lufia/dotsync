@@ -74,7 +74,7 @@ func (r *Repository) CopyFile(dest, p string, overwrite bool) error {
 	if err := os.Chmod(dest, mode); err != nil {
 		return err
 	}
-	s := fmt.Sprintf("%x %s\n", h.Sum(nil), dest)
+	s := fmt.Sprintf("%x %o %s\n", h.Sum(nil), mode, dest)
 	file := r.StateFile(slug)
 	return writeFile(file, []byte(s), 0644)
 }
