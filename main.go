@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"sort"
 )
 
 var commands = map[string]func(r *Repository, args []string, w io.Writer) error{
@@ -44,4 +45,14 @@ func usage() {
 	w := flag.CommandLine.Output()
 	fmt.Fprintf(w, "usage: %s [options] [commands]\n", os.Args[0])
 	flag.PrintDefaults()
+
+	fmt.Fprintln(w, "\navailable commands:")
+	var cmds []string
+	for s := range commands {
+		cmds = append(cmds, s)
+	}
+	sort.Strings(cmds)
+	for _, s := range cmds {
+		fmt.Fprintf(w, "  %s\n", s)
+	}
 }
