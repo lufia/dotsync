@@ -2,11 +2,15 @@
 set ts=4
 -- dotfiles/lib/profile --
 font=/mnt/font/GoMono/14a/font
+-- dotfiles/lib/newstime --
 -- out/.exrc --
 set ts=8
 -- out/lib/profile --
 font=/mnt/font/GoMono/22a/font
+-- out/lib/newstime!755 --
 -- .local/state/dotsync/store/.exrc --
 7970153163bfaaba0780d262461fb7b692380f6d249da3aef109f93ba2a7d643 $TEST_DIR/out/.exrc
 -- .local/state/dotsync/store/lib/profile --
 8218f9d74a96ef2e70a2ffb069418dacce41e00aed892ea8a8968272ea03ad9e $TEST_DIR/out/lib/profile
+-- .local/state/dotsync/store/lib/newstime --
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 $TEST_DIR/out/lib/newstime

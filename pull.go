@@ -15,7 +15,6 @@ func runPull(r *Repository, args []string, w io.Writer) error {
 	if err := f.Parse(args); err != nil {
 		return err
 	}
-	_ = *dryRun
 	dir := filepath.Join(r.StateDir, "store")
 	err := filepath.WalkDir(dir, func(p string, d os.DirEntry, err error) error {
 		if err != nil {
@@ -33,7 +32,11 @@ func runPull(r *Repository, args []string, w io.Writer) error {
 		if err != nil {
 			return err
 		}
-		if h == state.Hash {
+		modeDiff, err := isModeChanged(state.Target, state.Source)
+		if err != nil {
+			return err
+		}
+		if !modeDiff && h == state.Hash {
 			return nil
 		}
 

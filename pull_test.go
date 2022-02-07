@@ -14,7 +14,7 @@ func TestRunPull(t *testing.T) {
 	}{
 		{
 			file:  "testdata/pull/updated.txtar",
-			slugs: []string{".exrc", "lib/profile"},
+			slugs: []string{".exrc", "lib/profile", "bin/ct"},
 		},
 	}
 	for i, tt := range tests {

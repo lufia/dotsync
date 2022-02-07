@@ -58,7 +58,8 @@ func (r *Repository) CopyFile(dest, p string, overwrite bool) error {
 	if err != nil {
 		return err
 	}
-	fout, err := os.OpenFile(dest, flags, fi.Mode()&os.ModePerm)
+	mode := fi.Mode() & os.ModePerm
+	fout, err := os.OpenFile(dest, flags, mode)
 	if err != nil {
 		return err
 	}
@@ -68,6 +69,9 @@ func (r *Repository) CopyFile(dest, p string, overwrite bool) error {
 	o := io.MultiWriter(h, fout)
 	io.Copy(o, fin)
 	if err := fout.Sync(); err != nil {
+		return err
+	}
+	if err := os.Chmod(dest, mode); err != nil {
 		return err
 	}
 	s := fmt.Sprintf("%x %s\n", h.Sum(nil), dest)

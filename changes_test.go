@@ -21,7 +21,11 @@ func TestRunChanges(t *testing.T) {
 		},
 		{
 			file: "testdata/changes/modified.txtar",
-			want: "~/out/.exrc\n~/out/lib/profile\n",
+			want: strings.Join([]string{
+				"~/out/.exrc",
+				"~/out/lib/newstime",
+				"~/out/lib/profile",
+			}, "\n") + "\n",
 		},
 	}
 	for i, tt := range tests {
