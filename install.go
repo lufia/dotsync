@@ -37,6 +37,13 @@ func (r *Repository) CopyFile(dest, p string, overwrite bool) error {
 	}
 	defer fin.Close()
 
+	ok, err := isDir(dest)
+	if err != nil {
+		return err
+	}
+	if ok {
+		dest = filepath.Join(dest, filepath.Base(p))
+	}
 	dir := filepath.Dir(dest)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
@@ -66,6 +73,17 @@ func (r *Repository) CopyFile(dest, p string, overwrite bool) error {
 	s := fmt.Sprintf("%x %s\n", h.Sum(nil), dest)
 	file := r.StateFile(slug)
 	return writeFile(file, []byte(s), 0644)
+}
+
+func isDir(name string) (bool, error) {
+	fi, err := os.Stat(name)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return fi.Mode().IsDir(), nil
 }
 
 func writeFile(name string, data []byte, perm os.FileMode) error {
