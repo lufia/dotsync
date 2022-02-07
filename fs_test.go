@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -22,13 +23,41 @@ func initFS(t testing.TB, file string) string {
 		os.Unsetenv("TEST_DIR")
 	})
 	for _, f := range a.Files {
-		name := filepath.Join(rootDir, f.Name)
+		attr, err := parseFileAttr(f.Name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		name := filepath.Join(rootDir, attr.Name)
 		s := os.ExpandEnv(string(f.Data))
 		if err := writeFile(name, []byte(s), 0644); err != nil {
 			t.Fatal(err)
 		}
+		if err := os.Chmod(name, attr.Mode); err != nil {
+			t.Fatal(err)
+		}
 	}
 	return rootDir
+}
+
+type fileAttr struct {
+	Name string
+	Mode os.FileMode
+}
+
+func parseFileAttr(s string) (*fileAttr, error) {
+	attr := fileAttr{
+		Name: s,
+		Mode: 0644,
+	}
+	if i := strings.IndexByte(s, '!'); i >= 0 {
+		attr.Name = s[:i]
+		m, err := strconv.ParseInt(s[i+1:], 8, 0)
+		if err != nil {
+			return nil, err
+		}
+		attr.Mode = os.FileMode(m)
+	}
+	return &attr, nil
 }
 
 func testFileContent(t testing.TB, golden, actual string) {
@@ -45,6 +74,17 @@ func testFileContent(t testing.TB, golden, actual string) {
 	b := strings.Split(string(got), "\n")
 	if diff := cmp.Diff(a, b); diff != "" {
 		t.Errorf("mismatch (-want +got):\n%s", diff)
+	}
+	s1, err := os.Stat(golden)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s2, err := os.Stat(actual)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if s1.Mode() != s2.Mode() {
+		t.Errorf("mismath want: mode=%o, got: mode=%o", s1.Mode(), s2.Mode())
 	}
 }
 

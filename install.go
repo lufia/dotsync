@@ -47,7 +47,11 @@ func (r *Repository) CopyFile(dest, p string, overwrite bool) error {
 	} else {
 		flags |= os.O_EXCL
 	}
-	fout, err := os.OpenFile(dest, flags, 0644)
+	fi, err := os.Stat(p)
+	if err != nil {
+		return err
+	}
+	fout, err := os.OpenFile(dest, flags, fi.Mode()&os.ModePerm)
 	if err != nil {
 		return err
 	}

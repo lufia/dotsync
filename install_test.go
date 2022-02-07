@@ -19,6 +19,11 @@ func TestRunInstall(t *testing.T) {
 			src:  "~/dotfiles/.exrc",
 			dest: "~/out/.exrc",
 		},
+		{
+			file: "testdata/install/init.txtar",
+			src:  "~/dotfiles/bin/ct",
+			dest: "~/out/bin/ct",
+		},
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
@@ -38,7 +43,11 @@ func TestRunInstall(t *testing.T) {
 			}
 			testFileContent(t, args[0], args[1])
 
-			file := filepath.Join(stateDir, "store/.exrc")
+			s, err := filepath.Rel(r.rootDir, args[0])
+			if err != nil {
+				t.Fatal(err)
+			}
+			file := filepath.Join(stateDir, "store", s)
 			testFileContent(t, file+".golden", file)
 		})
 	}
