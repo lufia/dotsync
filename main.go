@@ -10,11 +10,12 @@ import (
 )
 
 var commands = map[string]func(r *Repository, args []string, w io.Writer) error{
-	"repo":    runRepo,
-	"install": runInstall,
-	"changes": runChanges,
-	"pull":    runPull,
-	"export":  runExport,
+	"repo":      runRepo,
+	"install":   runInstall,
+	"changes":   runChanges,
+	"pull":      runPull,
+	"uninstall": runUninstall,
+	"export":    runExport,
 }
 
 func main() {
@@ -37,7 +38,12 @@ func main() {
 		log.Fatal(err)
 	}
 	if err := f(r, args[1:], os.Stdout); err != nil {
-		log.Fatal(err)
+		if e, ok := err.(interface {
+			HasAlreadyShown() bool
+		}); !ok || !e.HasAlreadyShown() {
+			log.Fatal(err)
+		}
+		os.Exit(1)
 	}
 }
 

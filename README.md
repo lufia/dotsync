@@ -14,5 +14,7 @@ $ dotsync changes
 
 $ dotsync pull [-n]
 
+$ dotsync uninstall path
+
 $ dotsync export
 ```
