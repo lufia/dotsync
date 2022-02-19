@@ -19,12 +19,7 @@ func TestRunPull(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			dir := initFS(t, tt.file)
-			stateDir := filepath.Join(dir, ".local/state/dotsync")
-			r := &Repository{
-				StateDir: stateDir,
-				rootDir:  filepath.Join(dir, "dotfiles"),
-			}
+			dir, r := initFS(t, tt.file)
 			if err := runPull(r, nil, os.Stdout); err != nil {
 				t.Fatal(err)
 			}

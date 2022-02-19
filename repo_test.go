@@ -4,32 +4,37 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
-	"strconv"
 	"testing"
 )
 
 func TestRunRepoRead(t *testing.T) {
-	tests := []struct {
+	tests := map[string]struct {
 		file string
 		s    string
 	}{
-		{file: "testdata/repo/empty.txtar", s: ""},
-		{file: "testdata/repo/blank.txtar", s: ""},
-		{file: "testdata/repo/valid.txtar", s: "src/dotfiles\n"},
+		"repo file is not exist": {
+			"testdata/repo/empty.txtar", "",
+		},
+		"repo file is blak file": {
+			"testdata/repo/blank.txtar", "",
+		},
+		"repo file is already initialized": {
+			"testdata/repo/valid.txtar", "src/dotfiles\n",
+		},
 	}
-	for _, tt := range tests {
-		dir := initFS(t, tt.file)
-		r := &Repository{
-			StateDir: dir,
-		}
-		var args []string
-		var w bytes.Buffer
-		if err := runRepo(r, args, &w); err != nil {
-			t.Fatal(err)
-		}
-		if s := w.String(); s != tt.s {
-			t.Errorf("%s: got %s but want %s\n", tt.file, s, tt.s)
-		}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			_, r := initFS(t, tt.file)
+			r.rootDir = ""
+			var args []string
+			var w bytes.Buffer
+			if err := runRepo(r, args, &w); err != nil {
+				t.Fatal(err)
+			}
+			if s := w.String(); s != tt.s {
+				t.Errorf("%s: got %q but want %q\n", tt.file, s, tt.s)
+			}
+		})
 	}
 }
 
@@ -39,33 +44,31 @@ func TestRunRepoWrite(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	tests := []struct {
+	tests := map[string]struct {
 		file string
 		s    string
 		want string
 	}{
-		{
+		"repo file is not exist then writes relative path": {
 			file: "testdata/repo/empty.txtar",
 			s:    "src/dotfiles",
 			want: filepath.Join(wdir, "src", "dotfiles\n"),
 		},
-		{
+		"repo file is not exist then writes absolute path": {
 			file: "testdata/repo/empty.txtar",
 			s:    "/tmp/src/dotfiles",
 			want: "/tmp/src/dotfiles\n",
 		},
-		{
+		"repo file is already initialized": {
 			file: "testdata/repo/valid.txtar",
 			s:    "src/dotfiles",
 			want: filepath.Join(wdir, "src", "dotfiles\n"),
 		},
 	}
-	for i, tt := range tests {
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			dir := initFS(t, tt.file)
-			r := &Repository{
-				StateDir: dir,
-			}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			_, r := initFS(t, tt.file)
+			r.rootDir = ""
 			args := []string{"-w", tt.s}
 			var w bytes.Buffer
 			if err := runRepo(r, args, &w); err != nil {
@@ -74,12 +77,8 @@ func TestRunRepoWrite(t *testing.T) {
 			if s := w.String(); s != "" {
 				t.Errorf("%s: got %s but do not want any outputs\n", tt.file, s)
 			}
-			file := filepath.Join(dir, "repo")
-			data, err := os.ReadFile(file)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if s := string(data); s != tt.want {
+			file := filepath.Join(r.StateDir, "repo")
+			if s := readFileFatal(t, file); s != tt.want {
 				t.Errorf("runRepo(%v): repo = %q; want %q", args, s, tt.want)
 			}
 		})
