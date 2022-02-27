@@ -1,0 +1,3 @@
+install ~/dotfiles/.exrc ~/out/.exrc // '.*out/.exrc' file does not exist
+-- dotfiles/.exrc --
+set ts=4

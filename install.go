@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -68,6 +69,12 @@ func (r *Repository) CopyFile(dest, p string, opts CopyFileOptions) error {
 	mode := fi.Mode() & os.ModePerm
 	fout, err := os.OpenFile(dest, flags, mode)
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return fmt.Errorf("'%s' file does not exist", dest)
+		}
+		if errors.Is(err, os.ErrExist) {
+			return fmt.Errorf("'%s' file already exist", dest)
+		}
 		return err
 	}
 	defer fout.Close()

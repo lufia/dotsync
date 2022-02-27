@@ -1,0 +1,7 @@
+install ~/dotfiles/.exrc ~/out/.exrc // already exist$
+-- dotfiles/.exrc --
+set ts=8
+-- out/.exrc --
+set ts=4
+-- out/.exrc.golden --
+set ts=4
