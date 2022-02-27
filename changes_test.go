@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -11,15 +10,18 @@ import (
 
 func TestRunChanges(t *testing.T) {
 	tests := []struct {
-		file string
-		want string
+		script string
+		label  string
+		want   string
 	}{
 		{
-			file: "testdata/changes/init.txtar",
-			want: "",
+			script: "testdata/changes/clean.script",
+			label:  "no output if files is not modified locally",
+			want:   "",
 		},
 		{
-			file: "testdata/changes/modified.txtar",
+			script: "testdata/changes/dirty.script",
+			label:  "prints modified filenames",
 			want: strings.Join([]string{
 				"~/out/.exrc",
 				"~/out/lib/newstime",
@@ -27,15 +29,12 @@ func TestRunChanges(t *testing.T) {
 			}, "\n") + "\n",
 		},
 	}
-	for i, tt := range tests {
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			dir, r := initFS(t, tt.file)
+	for _, tt := range tests {
+		t.Run(tt.label, func(t *testing.T) {
 			var w bytes.Buffer
-			if err := runChanges(r, nil, &w); err != nil {
-				t.Fatal(err)
-			}
+			dir := testRunFunc(t, tt.script, &w)
 			a := expandTildeSlice(dir, strings.Split(tt.want, "\n"))
-			b := expandTildeSlice(dir, strings.Split(w.String(), "\n"))
+			b := strings.Split(w.String(), "\n")
 			if diff := cmp.Diff(a, b); diff != "" {
 				t.Errorf("mismatch (-want +got):\n%s", diff)
 			}

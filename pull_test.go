@@ -2,31 +2,19 @@ package main
 
 import (
 	"os"
-	"path/filepath"
-	"strconv"
 	"testing"
 )
 
 func TestRunPull(t *testing.T) {
 	tests := []struct {
-		file  string
-		slugs []string
+		script string
+		label  string
 	}{
-		{
-			file:  "testdata/pull/updated.txtar",
-			slugs: []string{".exrc", "lib/profile", "bin/ct"},
-		},
+		{"testdata/pull/arrived.script", "copy updated files"},
 	}
-	for i, tt := range tests {
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			dir, r := initFS(t, tt.file)
-			if err := runPull(r, nil, os.Stdout); err != nil {
-				t.Fatal(err)
-			}
-			for _, slug := range tt.slugs {
-				file := filepath.Join(dir, "out", slug)
-				testFileContent(t, file+".golden", file)
-			}
+	for _, tt := range tests {
+		t.Run(tt.label, func(t *testing.T) {
+			testRunFunc(t, tt.script, os.Stdout)
 		})
 	}
 }

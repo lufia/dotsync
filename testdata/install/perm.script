@@ -1,0 +1,7 @@
+install ~/dotfiles/bin/ct ~/out/bin/ct
+-- dotfiles/bin/ct!755 --
+echo hello
+-- out/bin/ct.golden!755 --
+echo hello
+-- .local/state/dotsync/store/bin/ct.golden --
+5dbad7dd0b9b122dcd9956884390f4aac4738caba8ff53498a7ab6718b176c30 755 $TEST_DIR/out/bin/ct

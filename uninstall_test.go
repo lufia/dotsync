@@ -2,38 +2,30 @@ package main
 
 import (
 	"os"
-	"path/filepath"
-	"strconv"
 	"testing"
 )
 
 func TestRunUninstall(t *testing.T) {
 	tests := []struct {
-		file string
-		args []string
+		script string
+		label  string
+		files  []string
 	}{
 		{
-			file: "testdata/uninstall/init.txtar",
-			args: []string{"~/out/.exrc"},
+			script: "testdata/uninstall/single.script",
+			label:  "remove a target file and its state",
+			files: []string{
+				"~/out/.exrc",
+				"~/.local/state/dotsync/store/.exrc",
+			},
 		},
 	}
-	for i, tt := range tests {
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			dir, r := initFS(t, tt.file)
-			args := expandTildeSlice(dir, tt.args)
-			if err := runUninstall(r, args, os.Stdout); err != nil {
-				t.Fatal(err)
-			}
-
-			outDir := filepath.Join(dir, "out")
-			for _, arg := range args {
-				slug, err := filepath.Rel(outDir, arg)
-				if err != nil {
-					t.Fatal(err)
-				}
+	for _, tt := range tests {
+		t.Run(tt.label, func(t *testing.T) {
+			dir := testRunFunc(t, tt.script, os.Stdout)
+			removedFiles := expandTildeSlice(dir, tt.files)
+			for _, arg := range removedFiles {
 				testFileRemoved(t, arg)
-				file := filepath.Join(r.StateDir, "store", slug)
-				testFileRemoved(t, file)
 			}
 		})
 	}

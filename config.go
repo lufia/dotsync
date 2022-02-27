@@ -65,7 +65,7 @@ func (r *Repository) Path() (string, error) {
 		if os.IsNotExist(err) {
 			return "", ErrNotInitialized
 		}
-		return "", err
+		return "", fmt.Errorf("cannot resolve repo path: %w", err)
 	}
 	s := string(bytes.TrimSpace(b))
 	if s == "" {
@@ -81,7 +81,10 @@ func (r *Repository) PutPath(p string) error {
 		return err
 	}
 	file := filepath.Join(r.StateDir, "repo")
-	if err := writeFile(file, []byte(p+"\n"), 0644); err != nil {
+	o := FileOptions{
+		MkdirAll: true,
+	}
+	if err := writeFile(file, []byte(p+"\n"), o); err != nil {
 		return err
 	}
 	r.rootDir = p

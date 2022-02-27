@@ -1,0 +1,7 @@
+install ~/dotfiles/.exrc ~/out/
+-- dotfiles/.exrc --
+set ts=4
+-- out/.exrc.golden --
+set ts=4
+-- .local/state/dotsync/store/.exrc.golden --
+7970153163bfaaba0780d262461fb7b692380f6d249da3aef109f93ba2a7d643 644 $TEST_DIR/out/.exrc

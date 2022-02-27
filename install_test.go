@@ -3,82 +3,22 @@ package main
 import (
 	"errors"
 	"os"
-	"path/filepath"
 	"strconv"
 	"testing"
 )
 
 func TestRunInstall(t *testing.T) {
 	tests := []struct {
-		file string
-		src  string
-		dest string
+		script string
+		label  string
 	}{
-		{
-			file: "testdata/install/init.txtar",
-			src:  "~/dotfiles/.exrc",
-			dest: "~/out/.exrc",
-		},
-		{
-			// set permission
-			file: "testdata/install/init.txtar",
-			src:  "~/dotfiles/bin/ct",
-			dest: "~/out/bin/ct",
-		},
+		{"testdata/install/regular.script", "copy a regular file"},
+		{"testdata/install/perm.script", "copy an executable file with its permission"},
+		{"testdata/install/dir.script", "copy a file into a directory"},
 	}
-	for i, tt := range tests {
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			dir, r := initFS(t, tt.file)
-			args := []string{
-				expandTilde(dir, tt.src),
-				expandTilde(dir, tt.dest),
-			}
-			if err := runInstall(r, args, os.Stdout); err != nil {
-				t.Fatal(err)
-			}
-			testFileContent(t, args[0], args[1])
-
-			s, err := filepath.Rel(r.rootDir, args[0])
-			if err != nil {
-				t.Fatal(err)
-			}
-			file := filepath.Join(r.StateDir, "store", s)
-			testFileContent(t, file+".golden", file)
-		})
-	}
-}
-
-func TestRunInstallDir(t *testing.T) {
-	tests := []struct {
-		file string
-		src  string
-		dest string
-	}{
-		{
-			file: "testdata/install/dir.txtar",
-			src:  "~/dotfiles/.exrc",
-			dest: "~/out/",
-		},
-	}
-	for i, tt := range tests {
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			dir, r := initFS(t, tt.file)
-			args := []string{
-				expandTilde(dir, tt.src),
-				expandTilde(dir, tt.dest),
-			}
-			if err := runInstall(r, args, os.Stdout); err != nil {
-				t.Fatal(err)
-			}
-			target := filepath.Join(args[1], filepath.Base(args[0]))
-			testFileContent(t, args[0], target)
-
-			s, err := filepath.Rel(r.rootDir, args[0])
-			if err != nil {
-				t.Fatal(err)
-			}
-			file := filepath.Join(r.StateDir, "store", s)
-			testFileContent(t, file+".golden", file)
+	for _, tt := range tests {
+		t.Run(tt.label, func(t *testing.T) {
+			testRunFunc(t, tt.script, os.Stdout)
 		})
 	}
 }
@@ -86,24 +26,24 @@ func TestRunInstallDir(t *testing.T) {
 func TestRunInstallErr(t *testing.T) {
 	tests := []struct {
 		file string
-		src  string
-		dest string
+		args []string
 		err  error
 	}{
 		{
 			file: "testdata/install/exist.txtar",
-			src:  "~/dotfiles/.exrc",
-			dest: "~/out/.exrc",
+			args: []string{"~/dotfiles/.exrc", "~/out/.exrc"},
 			err:  os.ErrExist,
+		},
+		{
+			file: "testdata/install/nodir.txtar",
+			args: []string{"~/dotfiles/.exrc", "~/out/dir/.exrc"},
+			err:  os.ErrNotExist,
 		},
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			dir, r := initFS(t, tt.file)
-			args := []string{
-				expandTilde(dir, tt.src),
-				expandTilde(dir, tt.dest),
-			}
+			args := expandTildeSlice(dir, tt.args)
 			err := runInstall(r, args, os.Stdout)
 			if !errors.Is(err, tt.err) {
 				t.Errorf("runInstall(%v): err = %v; want %v", args, err, tt.err)

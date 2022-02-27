@@ -19,10 +19,15 @@ func runInstall(r *Repository, args []string, w io.Writer) error {
 		f.Usage()
 		os.Exit(2)
 	}
-	return r.CopyFile(args[1], args[0], false)
+	return r.CopyFile(args[1], args[0], CopyFileOptions{})
 }
 
-func (r *Repository) CopyFile(dest, p string, overwrite bool) error {
+type CopyFileOptions struct {
+	MkdirAll  bool
+	Overwrite bool
+}
+
+func (r *Repository) CopyFile(dest, p string, opts CopyFileOptions) error {
 	slug, err := r.Slug(p)
 	if err != nil {
 		return err
@@ -45,11 +50,13 @@ func (r *Repository) CopyFile(dest, p string, overwrite bool) error {
 		dest = filepath.Join(dest, filepath.Base(p))
 	}
 	dir := filepath.Dir(dest)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return err
+	if opts.MkdirAll {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return err
+		}
 	}
 	flags := os.O_WRONLY | os.O_CREATE
-	if overwrite {
+	if opts.Overwrite {
 		flags |= os.O_TRUNC
 	} else {
 		flags |= os.O_EXCL
@@ -76,7 +83,7 @@ func (r *Repository) CopyFile(dest, p string, overwrite bool) error {
 	}
 	s := fmt.Sprintf("%x %o %s\n", h.Sum(nil), mode, dest)
 	file := r.StateFile(slug)
-	return writeFile(file, []byte(s), 0644)
+	return writeFile(file, []byte(s), FileOptions{})
 }
 
 func isDir(name string) (bool, error) {
@@ -90,10 +97,21 @@ func isDir(name string) (bool, error) {
 	return fi.Mode().IsDir(), nil
 }
 
-func writeFile(name string, data []byte, perm os.FileMode) error {
+type FileOptions struct {
+	MkdirAll bool
+	Perm     os.FileMode
+}
+
+func writeFile(name string, data []byte, opts FileOptions) error {
 	dir := filepath.Dir(name)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return err
+	if opts.MkdirAll {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return err
+		}
+	}
+	perm := os.FileMode(0644)
+	if opts.Perm != 0 {
+		perm = opts.Perm
 	}
 	return os.WriteFile(name, data, perm)
 }

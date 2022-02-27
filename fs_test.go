@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -13,10 +14,15 @@ import (
 
 func initFS(t testing.TB, file string) (string, *Repository) {
 	t.Helper()
-	a, err := txtar.ParseFile(file)
+	data, err := os.ReadFile(file)
 	if err != nil {
 		t.Fatal(err)
 	}
+	return initFSR(t, file, data)
+}
+
+func initFSR(t testing.TB, file string, data []byte) (string, *Repository) {
+	a := txtar.Parse(data)
 	rootDir := t.TempDir()
 	os.Setenv("TEST_DIR", rootDir)
 	t.Cleanup(func() {
@@ -33,7 +39,10 @@ func initFS(t testing.TB, file string) (string, *Repository) {
 			continue
 		}
 		s := os.ExpandEnv(string(f.Data))
-		if err := writeFile(name, []byte(s), 0644); err != nil {
+		opts := FileOptions{
+			MkdirAll: true,
+		}
+		if err := writeFile(name, []byte(s), opts); err != nil {
 			t.Fatal(err)
 		}
 		if err := os.Chmod(name, attr.Mode); err != nil {
@@ -75,7 +84,18 @@ func parseFileAttr(s string) (*fileAttr, error) {
 
 func testFileContent(t testing.TB, golden, actual string) {
 	t.Helper()
-	want := readFileFatal(t, golden)
+	wantBytes, err := os.ReadFile(golden)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			_, err := os.ReadFile(actual)
+			if !errors.Is(err, os.ErrNotExist) {
+				t.Errorf("file '%s' should not exist", actual)
+			}
+			return
+		}
+		t.Fatalf("read %s: %v", golden, err)
+	}
+	want := string(wantBytes)
 	got := readFileFatal(t, actual)
 	a := strings.Split(want, "\n")
 	b := strings.Split(got, "\n")
@@ -119,6 +139,7 @@ func expandTilde(dir, s string) string {
 	if s == "~" {
 		return dir
 	}
+	s = filepath.ToSlash(s)
 	if strings.HasPrefix(s, "~/") {
 		return filepath.Join(dir, s[2:])
 	}

@@ -52,7 +52,9 @@ func runPull(r *Repository, args []string, w io.Writer) error {
 			fmt.Printf("cp %q %q\n", state.Source, state.Target)
 			return nil
 		}
-		return r.CopyFile(state.Target, state.Source, true)
+		return r.CopyFile(state.Target, state.Source, CopyFileOptions{
+			Overwrite: true,
+		})
 	})
 	if err != nil {
 		if os.IsNotExist(err) {
