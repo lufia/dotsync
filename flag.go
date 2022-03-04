@@ -16,7 +16,7 @@ func NewFlagSet(name, args string) *flag.FlagSet {
 		if args != "" {
 			fmt.Fprintf(f.Output(), " %s", args)
 		}
-		fmt.Fprintf(f.Output(), "\n")
+		fmt.Fprintln(f.Output(), "\nFlags:")
 		f.PrintDefaults()
 	}
 	if flag.Lookup("test.v") != nil {
