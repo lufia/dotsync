@@ -1,0 +1,8 @@
+uninstall ~/out/.exrc ~/out/lib/newstime
+-- out/.exrc --
+set ts=4
+-- out/lib/newstime --
+-- .local/state/dotsync/store/.exrc --
+7970153163bfaaba0780d262461fb7b692380f6d249da3aef109f93ba2a7d643 644 $TEST_DIR/out/.exrc
+-- .local/state/dotsync/store/lib/newstime --
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 644 $TEST_DIR/out/lib/newstime

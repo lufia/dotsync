@@ -8,21 +8,21 @@ import (
 )
 
 func runUninstall(r *Repository, args []string, w io.Writer) error {
-	f := NewFlagSet("uninstall", "path")
+	f := NewFlagSet("uninstall", "[path ...]")
 	force := f.Bool("f", false, "discard locally changes and remove")
 
 	if err := f.Parse(args); err != nil {
 		return err
 	}
-	args = f.Args()
-	if len(args) != 1 {
-		f.Usage()
-		os.Exit(2)
+	targets := make(map[string]struct{})
+	for _, arg := range f.Args() {
+		s, err := filepath.Abs(arg)
+		if err != nil {
+			return err
+		}
+		targets[s] = struct{}{}
 	}
-	target, err := filepath.Abs(args[0])
-	if err != nil {
-		return err
-	}
+
 	dir := filepath.Join(r.StateDir, "store")
 	return filepath.WalkDir(dir, func(p string, d os.DirEntry, err error) error {
 		if err != nil {
@@ -35,20 +35,22 @@ func runUninstall(r *Repository, args []string, w io.Writer) error {
 		if err != nil {
 			return err
 		}
-		if state.Target != target {
+		if _, ok := targets[state.Target]; !ok {
 			return nil
 		}
 
-		h, err := ReadHash(state.Target)
-		if err != nil {
-			return err
-		}
-		ok, err := isModeEqual(state.Target, state.Mode)
-		if err != nil {
-			return err
-		}
-		if !*force && (!ok || h != state.Hash) {
-			return fmt.Errorf("%s: locally modified; will not remove", state.Target)
+		if !*force {
+			h, err := ReadHash(state.Target)
+			if err != nil {
+				return err
+			}
+			ok, err := isModeEqual(state.Target, state.Mode)
+			if err != nil {
+				return err
+			}
+			if !ok || h != state.Hash {
+				return fmt.Errorf("%s: locally modified; will not remove", state.Target)
+			}
 		}
 		if err := remove(p); err != nil {
 			return err

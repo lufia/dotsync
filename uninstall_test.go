@@ -20,6 +20,16 @@ func TestRunUninstall(t *testing.T) {
 			},
 		},
 		{
+			script: "testdata/uninstall/multi.script",
+			label:  "remove target files and its states",
+			files: []string{
+				"~/out/.exrc",
+				"~/out/lib/newstime",
+				"~/.local/state/dotsync/store/.exrc",
+				"~/.local/state/dotsync/store/lib/newstime",
+			},
+		},
+		{
 			script: "testdata/uninstall/modified.script",
 			label:  "occurs an error if file is modified",
 		},
