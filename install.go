@@ -10,17 +10,37 @@ import (
 )
 
 func runInstall(r *Repository, args []string, w io.Writer) error {
-	f := NewFlagSet("install", "dotfile [path]")
+	f := NewFlagSet("install", "dotfile [...] path")
+	force := f.Bool("f", false, "indicate to replace old file")
 
 	if err := f.Parse(args); err != nil {
 		return err
 	}
 	args = f.Args()
-	if len(args) != 2 {
+	if len(args) < 2 {
 		f.Usage()
 		os.Exit(2)
 	}
-	return r.CopyFile(args[1], args[0], CopyFileOptions{})
+	to := args[len(args)-1]
+	args = args[:len(args)-1]
+	if len(args) >= 2 {
+		ok, err := isDir(to)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return fmt.Errorf("%s not a directory", to)
+		}
+	}
+	for _, f := range args {
+		err := r.CopyFile(to, f, CopyFileOptions{
+			Overwrite: *force,
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 type CopyFileOptions struct {

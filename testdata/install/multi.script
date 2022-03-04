@@ -1,0 +1,13 @@
+install ~/dotfiles/.exrc ~/dotfiles/bin/m ~/out/
+-- dotfiles/.exrc --
+set ts=4
+-- dotfiles/bin/m!755 --
+echo hello
+-- out/.exrc.golden --
+set ts=4
+-- out/m.golden!755 --
+echo hello
+-- .local/state/dotsync/store/.exrc.golden --
+7970153163bfaaba0780d262461fb7b692380f6d249da3aef109f93ba2a7d643 644 $TEST_DIR/out/.exrc
+-- .local/state/dotsync/store/bin/m.golden --
+5dbad7dd0b9b122dcd9956884390f4aac4738caba8ff53498a7ab6718b176c30 755 $TEST_DIR/out/m

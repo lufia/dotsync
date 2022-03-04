@@ -8,7 +8,7 @@ dotfiles manager without symlinks
 ```console
 $ dotsync repo [-w path]
 
-$ dotsync install source dest
+$ dotsync install [-f] source [...] dest
 
 $ dotsync changes
 
@@ -21,7 +21,7 @@ $ dotsync export
 
 `dotsync repo` gets the source root path. If *-w* option is passed, it updates source root with *path*.
 
-`dotsync install` links *source* to *dest* to manage changes.
+`dotsync install` links *source* to *dest* to manage changes. When *-f* option is passed, it overwrites *dest* even if file is already exists.
 
 `dotsync uninstall` unlink and remove *path*.
 

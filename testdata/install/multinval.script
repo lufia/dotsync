@@ -1,0 +1,7 @@
+install ~/dotfiles/.exrc ~/dotfiles/bin/m ~/dotfiles/profile // .*/profile not a directory$
+-- dotfiles/.exrc --
+set ts=4
+-- dotfiles/bin/m!755 --
+echo hello
+-- dotfiles/profile --
+profile
