@@ -52,7 +52,7 @@ func usage() {
 	fmt.Fprintf(w, "usage: %s [options] [commands]\n", os.Args[0])
 	flag.PrintDefaults()
 
-	fmt.Fprintln(w, "\navailable commands:\n")
+	fmt.Fprintf(w, "\navailable commands:\n\n")
 	var cmds []string
 	for s := range commands {
 		cmds = append(cmds, s)
