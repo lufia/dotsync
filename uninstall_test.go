@@ -19,6 +19,18 @@ func TestRunUninstall(t *testing.T) {
 				"~/.local/state/dotsync/store/.exrc",
 			},
 		},
+		{
+			script: "testdata/uninstall/modified.script",
+			label:  "occurs an error if file is modified",
+		},
+		{
+			script: "testdata/uninstall/discard.script",
+			label:  "remove a target file and its state if modified",
+			files: []string{
+				"~/out/.exrc",
+				"~/.local/state/dotsync/store/.exrc",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.label, func(t *testing.T) {

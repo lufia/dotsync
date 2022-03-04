@@ -1,14 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 )
 
 func runUninstall(r *Repository, args []string, w io.Writer) error {
 	f := NewFlagSet("uninstall", "path")
+	force := f.Bool("f", false, "discard locally changes and remove")
 
 	if err := f.Parse(args); err != nil {
 		return err
@@ -46,9 +47,8 @@ func runUninstall(r *Repository, args []string, w io.Writer) error {
 		if err != nil {
 			return err
 		}
-		if !ok || h != state.Hash {
-			log.Printf("%s: locally modified; will not remove", state.Target)
-			return &alreadyShownError{err: err}
+		if !*force && (!ok || h != state.Hash) {
+			return fmt.Errorf("%s: locally modified; will not remove", state.Target)
 		}
 		if err := remove(p); err != nil {
 			return err

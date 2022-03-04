@@ -14,7 +14,7 @@ $ dotsync changes
 
 $ dotsync pull [-n]
 
-$ dotsync uninstall path
+$ dotsync uninstall [-f] path
 
 $ dotsync export
 ```
@@ -23,7 +23,7 @@ $ dotsync export
 
 `dotsync install` links *source* to *dest* to manage changes. When *-f* option is passed, it overwrites *dest* even if file is already exists.
 
-`dotsync uninstall` unlink and remove *path*.
+`dotsync uninstall` unlink and remove *path*. When *-f* option is passed, it removes *path* even if file is locally modified.
 
 `dotsync changes` prints locally changed filenames.
 
