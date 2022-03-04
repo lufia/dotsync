@@ -1,6 +1,14 @@
 # dotsync
 dotfiles manager without symlinks
 
+[![Actions Status][actions-image]][actions-url]
+[![Coverage Status][coveralls-image]][coveralls-url]
+
+[actions-image]: https://github.com/lufia/dotsync/workflows/Test/badge.svg?branch=main
+[actions-url]: https://github.com/lufia/dotsync/actions?workflow=Test
+[coveralls-image]: https://coveralls.io/repos/github/lufia/dotsync/badge.svg
+[coveralls-url]: https://coveralls.io/github/lufia/dotsync
+
 ## Getting Started
 
 ## SYNOPSIS
