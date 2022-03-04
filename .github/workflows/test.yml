@@ -10,5 +10,3 @@ on:
 jobs:
   test:
     uses: lufia/workflows/.github/workflows/go-test.yml@main
-    secrets:
-      github-token: ${{ secrets.GITHUB_TOKEN }}
