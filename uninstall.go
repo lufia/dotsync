@@ -23,7 +23,7 @@ func runUninstall(r *Repository, args []string, w io.Writer) error {
 		targets[s] = struct{}{}
 	}
 
-	dir := filepath.Join(r.StateDir, "store")
+	dir := JoinName(r.StateDir, "store")
 	return filepath.WalkDir(dir, func(p string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err

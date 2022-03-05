@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 )
 
 func runInstall(r *Repository, args []string, w io.Writer) error {
@@ -68,7 +69,7 @@ func (r *Repository) CopyFile(dest, p string, opts CopyFileOptions) error {
 		return err
 	}
 	if ok {
-		dest = filepath.Join(dest, filepath.Base(p))
+		dest = JoinName(dest, filepath.Base(p))
 	}
 	dir := filepath.Dir(dest)
 	if opts.MkdirAll {
@@ -108,6 +109,10 @@ func (r *Repository) CopyFile(dest, p string, opts CopyFileOptions) error {
 	if err := os.Chmod(dest, mode); err != nil {
 		return err
 	}
+	if runtime.GOOS == "windows" {
+		mode |= 022
+	}
+	dest = filepath.ToSlash(dest)
 	s := fmt.Sprintf("%x %o %s\n", h.Sum(nil), mode, dest)
 	file := r.StateFile(slug)
 	return writeFile(file, []byte(s), FileOptions{})
@@ -130,8 +135,8 @@ type FileOptions struct {
 }
 
 func writeFile(name string, data []byte, opts FileOptions) error {
-	dir := filepath.Dir(name)
 	if opts.MkdirAll {
+		dir := filepath.Dir(name)
 		if err := os.MkdirAll(dir, 0755); err != nil {
 			return err
 		}

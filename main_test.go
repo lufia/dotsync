@@ -15,7 +15,7 @@ func testRunFunc(t testing.TB, script string, w io.Writer) string {
 	t.Helper()
 	data, err := os.ReadFile(script)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("ReadFile(%q): %v", script, err)
 	}
 	// FIXME: it's better to use bytes.Cut.
 	defs := bytes.SplitN(data, []byte{'\n'}, 2)

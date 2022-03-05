@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"os"
-	"path/filepath"
 	"testing"
 )
 
@@ -52,7 +51,7 @@ func TestRunRepoWrite(t *testing.T) {
 		"repo file is not exist then writes relative path": {
 			file: "testdata/repo/empty.txtar",
 			s:    "src/dotfiles",
-			want: filepath.Join(wdir, "src", "dotfiles\n"),
+			want: JoinName(wdir, "src", "dotfiles\n"),
 		},
 		"repo file is not exist then writes absolute path": {
 			file: "testdata/repo/empty.txtar",
@@ -62,7 +61,7 @@ func TestRunRepoWrite(t *testing.T) {
 		"repo file is already initialized": {
 			file: "testdata/repo/valid.txtar",
 			s:    "src/dotfiles",
-			want: filepath.Join(wdir, "src", "dotfiles\n"),
+			want: JoinName(wdir, "src", "dotfiles\n"),
 		},
 	}
 	for name, tt := range tests {
@@ -77,7 +76,7 @@ func TestRunRepoWrite(t *testing.T) {
 			if s := w.String(); s != "" {
 				t.Errorf("%s: got %s but do not want any outputs\n", tt.file, s)
 			}
-			file := filepath.Join(r.StateDir, "repo")
+			file := JoinName(r.StateDir, "repo")
 			if s := readFileFatal(t, file); s != tt.want {
 				t.Errorf("runRepo(%v): repo = %q; want %q", args, s, tt.want)
 			}

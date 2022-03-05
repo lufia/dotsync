@@ -22,7 +22,7 @@ func userStateDir() (string, error) {
 		if dir == "" {
 			return "", errors.New("$home is not defined")
 		}
-		dir = filepath.Join(dir, "lib/state")
+		dir = JoinName(dir, "lib", "state")
 	default:
 		dir = os.Getenv("XDG_STATE_HOME")
 		if dir == "" {
@@ -30,7 +30,7 @@ func userStateDir() (string, error) {
 			if dir == "" {
 				return "", errors.New("neither $XDG_STATE_HOME nor $HOME are defined")
 			}
-			dir = filepath.Join(dir, ".local/state")
+			dir = JoinName(dir, ".local", "state")
 		}
 	}
 	return dir, nil
@@ -49,7 +49,7 @@ func OpenRepository() (*Repository, error) {
 		return nil, err
 	}
 	return &Repository{
-		StateDir: filepath.Join(dir, "dotsync"),
+		StateDir: JoinName(dir, "dotsync"),
 	}, nil
 }
 
@@ -59,7 +59,7 @@ func (r *Repository) Path() (string, error) {
 		return r.rootDir, nil
 	}
 
-	file := filepath.Join(r.StateDir, "repo")
+	file := JoinName(r.StateDir, "repo")
 	b, err := os.ReadFile(file)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -80,7 +80,7 @@ func (r *Repository) PutPath(p string) error {
 	if err != nil {
 		return err
 	}
-	file := filepath.Join(r.StateDir, "repo")
+	file := JoinName(r.StateDir, "repo")
 	o := FileOptions{
 		MkdirAll: true,
 	}
@@ -104,7 +104,7 @@ func (r *Repository) Slug(p string) (string, error) {
 }
 
 func (r *Repository) StateFile(slug string) string {
-	return filepath.Join(r.StateDir, "store", slug)
+	return JoinName(r.StateDir, "store", slug)
 }
 
 type State struct {
@@ -119,7 +119,7 @@ func (r *Repository) ReadState(file string) (*State, error) {
 	if err != nil {
 		return nil, err
 	}
-	storeDir := filepath.Join(r.StateDir, "store")
+	storeDir := JoinName(r.StateDir, "store")
 	slug, err := filepath.Rel(storeDir, p)
 	if err != nil {
 		return nil, err
@@ -146,7 +146,7 @@ func (r *Repository) ReadState(file string) (*State, error) {
 		Hash:   a[0],
 		Mode:   os.FileMode(mode),
 		Target: a[2],
-		Source: filepath.Join(dir, slug),
+		Source: JoinName(dir, slug),
 	}, nil
 }
 
