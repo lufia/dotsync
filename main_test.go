@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -13,6 +14,9 @@ import (
 // testRunFunc execute script and then checks all golden files that are contained in the script.
 func testRunFunc(t testing.TB, script string, w io.Writer) string {
 	t.Helper()
+	if runtime.GOOS == "windows" {
+		t.Skip()
+	}
 	data, err := os.ReadFile(script)
 	if err != nil {
 		t.Fatal(err)
