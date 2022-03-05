@@ -4,10 +4,15 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 )
 
 func TestRunRepoRead(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip()
+	}
+
 	tests := map[string]struct {
 		file string
 		s    string
@@ -39,6 +44,10 @@ func TestRunRepoRead(t *testing.T) {
 }
 
 func TestRunRepoWrite(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip()
+	}
+
 	wdir, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
