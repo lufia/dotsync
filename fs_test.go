@@ -16,7 +16,7 @@ func initFS(t testing.TB, file string) (string, *Repository) {
 	t.Helper()
 	data, err := os.ReadFile(file)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("ReadFile(%q): %v", file, err)
 	}
 	return initFSR(t, file, data)
 }
@@ -43,10 +43,10 @@ func initFSR(t testing.TB, file string, data []byte) (string, *Repository) {
 			MkdirAll: true,
 		}
 		if err := writeFile(name, []byte(s), opts); err != nil {
-			t.Fatal(err)
+			t.Fatalf("writeFile(%q): %v", name, err)
 		}
 		if err := os.Chmod(name, attr.Mode); err != nil {
-			t.Fatal(err)
+			t.Fatalf("Chmod(%q, %o): %v", name, attr.Mode, err)
 		}
 	}
 	return rootDir, &Repository{
