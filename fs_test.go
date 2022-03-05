@@ -24,7 +24,7 @@ func initFS(t testing.TB, file string) (string, *Repository) {
 func initFSR(t testing.TB, file string, data []byte) (string, *Repository) {
 	a := txtar.Parse(data)
 	rootDir := t.TempDir()
-	os.Setenv("TEST_DIR", rootDir)
+	os.Setenv("TEST_DIR", filepath.ToSlash(rootDir))
 	t.Cleanup(func() {
 		os.Unsetenv("TEST_DIR")
 	})
@@ -33,7 +33,7 @@ func initFSR(t testing.TB, file string, data []byte) (string, *Repository) {
 		if err != nil {
 			t.Fatalf("%s: cannot parse '%s'", file, f.Name)
 		}
-		name := filepath.Join(rootDir, attr.Name)
+		name := JoinName(rootDir, attr.Name)
 		if attr.Mode.IsDir() {
 			mkdirFatal(t, name, attr.Mode)
 			continue
@@ -50,8 +50,8 @@ func initFSR(t testing.TB, file string, data []byte) (string, *Repository) {
 		}
 	}
 	return rootDir, &Repository{
-		StateDir: filepath.Join(rootDir, ".local/state/dotsync"),
-		rootDir:  filepath.Join(rootDir, "dotfiles"),
+		StateDir: JoinName(rootDir, ".local", "state", "dotsync"),
+		rootDir:  JoinName(rootDir, "dotfiles"),
 	}
 }
 
@@ -139,9 +139,8 @@ func expandTilde(dir, s string) string {
 	if s == "~" {
 		return dir
 	}
-	s = filepath.ToSlash(s)
 	if strings.HasPrefix(s, "~/") {
-		return filepath.Join(dir, s[2:])
+		return JoinName(dir, s[2:])
 	}
 	return s
 }

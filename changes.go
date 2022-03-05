@@ -13,7 +13,7 @@ func runChanges(r *Repository, args []string, w io.Writer) error {
 	if err := f.Parse(args); err != nil {
 		return err
 	}
-	dir := filepath.Join(r.StateDir, "store")
+	dir := JoinName(r.StateDir, "store")
 	return filepath.WalkDir(dir, func(p string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
