@@ -1,0 +1,10 @@
+version: 2
+updates:
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weelky"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weelky"
