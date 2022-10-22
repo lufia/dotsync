@@ -29,7 +29,7 @@ func runChanges(r *Repository, args []string, w io.Writer) error {
 		if err != nil {
 			return err
 		}
-		ok, err := isModeEqual(state.Target, state.Mode)
+		ok, _, err := isModeEqual(state.Target, state.Mode)
 		if err != nil {
 			return err
 		}
@@ -40,11 +40,11 @@ func runChanges(r *Repository, args []string, w io.Writer) error {
 	})
 }
 
-func isModeEqual(file string, mode os.FileMode) (bool, error) {
+func isModeEqual(file string, mode os.FileMode) (bool, os.FileMode, error) {
 	fi, err := os.Stat(file)
 	if err != nil {
-		return false, err
+		return false, 0, err
 	}
 	m := fi.Mode() & os.ModePerm
-	return m == mode, nil
+	return m == mode, m, nil
 }

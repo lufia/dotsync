@@ -44,7 +44,7 @@ func runUninstall(r *Repository, args []string, w io.Writer) error {
 			if err != nil {
 				return err
 			}
-			ok, err := isModeEqual(state.Target, state.Mode)
+			ok, _, err := isModeEqual(state.Target, state.Mode)
 			if err != nil {
 				return err
 			}
