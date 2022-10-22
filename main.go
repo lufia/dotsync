@@ -14,6 +14,7 @@ var commands = map[string]func(r *Repository, args []string, w io.Writer) error{
 	"install":   runInstall,
 	"changes":   runChanges,
 	"pull":      runPull,
+	"push":      runPush,
 	"uninstall": runUninstall,
 	"export":    runExport,
 }
