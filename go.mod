@@ -1,4 +1,4 @@
-module dotsync
+module github.com/lufia/dotsync
 
 go 1.17
 
