@@ -1,0 +1,30 @@
+name: Pack release files
+description: Pack files and compress.
+inputs:
+  path:
+    description: A file, directory or wildcard pattern that describes what to pack.
+    required: true
+  format:
+    description: |
+      Archive file format.
+      Available formats:
+      - zip
+      - tgz
+      - tar.gz
+    required: false
+    default: zip
+  archive:
+    description: Archive file.
+    value: 
+
+runs:
+  using: composite
+  steps:
+  - name: pack with tgz
+    run: |
+      tar zcf "$INPUT_ARCHIVE" ${{ input.path }}
+    if: input.format == 'tgz' || input.format == 'tar.gz'
+  - name: pack with zip
+    run: |
+      zip "$INPUT_ARCHIVE" "${{ input.path }}"
+    if: matrix.format == 'zip'

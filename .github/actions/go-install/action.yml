@@ -1,0 +1,43 @@
+name: Install a command written in Go
+description: This action installs the package by go install.
+inputs:
+  package-path:
+    description: Package import path.
+    required: false
+    default: ${{ github.repository }}
+  version:
+    description: Package version.
+    required: false
+    default: latest
+  path:
+    description: Destination path.
+    required: false
+    default: ${{ github.workspace }}
+outputs:
+  target:
+    description: Target binary file.
+    value: ${{ steps.build.outputs.target }}
+
+runs:
+  using: composite
+  steps:
+  - name: build
+    run: |
+      echo "GOOS=$(go env GOOS)"
+      echo "GOARCH=$(go env GOARCH)"
+      bindir="$(go env GOPATH)/bin"
+      name="$(basename "$INPUT_PACKAGE_PATH")"
+
+      target="$name"
+      if [[ "$(go env GOOS)" = windows ]]
+      then
+        target="$target.exe"
+      fi
+
+      go install "$INPUT_PACKAGE_PATH@$INPUT_VERSION"
+      file="$(find "$bindir" -type f -executable -name "$target")"
+      mv "$file" "$INPUT_PATH/$target"
+
+      echo name="$name" >>"$GITHUB_OUTPUT"
+      echo target="$target" >>"$GITHUB_OUTPUT"
+    id: build

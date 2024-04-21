@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  release:
+    types:
+    - published
+jobs:
+  release:
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        os:
+        - linux
+        - darwin
+        - windows
+        arch:
+        - amd64
+        - arm64
+        include:
+        - format: tgz
+        - os: windows
+          format: zip
+        exclude:
+        - os: darwin
+          arch: amd64
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/setup-go@v5
+      with:
+        go-version: stable
+    - name: build
+      uses: ./.github/actions/go-install
+      with:
+        #package-path: ${{ github.repository }}
+        version: ${{ github.ref_name }}
+      env:
+        GOOS: ${{ matrix.os }}
+        GOARCH: ${{ matrix.arch }}
+      id: build
+    - name: construct the archive name
+      run: |
+        echo archive="${{ steps.build.outputs.name }}${{ github.ref_name }}.${{ matrix.os }}-${{ matrix.arch }}.${{ matrix.format }}" >>"$GITHUB_OUTPUT"
+      id: prep
+    - name: pack
+      uses: ./.github/actions/go-pack
+      with:
+        path: |
+          ${{ steps.build.outputs.target }}
+          LICENSE
+          README.md
+        format: ${{ matrix.format }}
+        archive: ${{ steps.prep.outputs.archive }}
+    - name: release
+      run: gh release upload "$GITHUB_REF_NAME" "${{ steps.prep.outputs.archive }}"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
