@@ -26,6 +26,7 @@ jobs:
           arch: amd64
     runs-on: ubuntu-22.04
     steps:
+    - uses: actions/checkout@v4
     - uses: actions/setup-go@v5
       with:
         go-version: stable
@@ -40,12 +41,13 @@ jobs:
       id: build
     - name: construct the archive name
       run: |
-        echo archive="${{ steps.build.outputs.name }}${{ github.ref_name }}.${{ matrix.os }}-${{ matrix.arch }}.${{ matrix.format }}" >>"$GITHUB_OUTPUT"
+        name="$(basename "${{ github.repository }}")"
+        echo archive="$name-${{ github.ref_name }}.${{ matrix.os }}-${{ matrix.arch }}.${{ matrix.format }}" >>"$GITHUB_OUTPUT"
       id: prep
     - name: pack
       uses: ./.github/actions/go-pack
       with:
-        path: |
+        path: >
           ${{ steps.build.outputs.target }}
           LICENSE
           README.md

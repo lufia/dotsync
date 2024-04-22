@@ -22,9 +22,11 @@ runs:
   steps:
   - name: pack with tgz
     run: |
-      tar zcf "$INPUT_ARCHIVE" ${{ input.path }}
-    if: input.format == 'tgz' || input.format == 'tar.gz'
+      tar zcf "${{ inputs.archive }}" ${{ inputs.path }}
+    shell: bash
+    if: inputs.format == 'tgz' || inputs.format == 'tar.gz'
   - name: pack with zip
     run: |
-      zip "$INPUT_ARCHIVE" "${{ input.path }}"
+      zip "${{ inputs.archive }}" ${{ inputs.path }}
+    shell: bash
     if: matrix.format == 'zip'

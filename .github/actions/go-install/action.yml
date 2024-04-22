@@ -4,7 +4,7 @@ inputs:
   package-path:
     description: Package import path.
     required: false
-    default: ${{ github.repository }}
+    default: github.com/${{ github.repository }}
   version:
     description: Package version.
     required: false
@@ -26,7 +26,7 @@ runs:
       echo "GOOS=$(go env GOOS)"
       echo "GOARCH=$(go env GOARCH)"
       bindir="$(go env GOPATH)/bin"
-      name="$(basename "$INPUT_PACKAGE_PATH")"
+      name="$(basename "${{ inputs.package-path }}")"
 
       target="$name"
       if [[ "$(go env GOOS)" = windows ]]
@@ -34,10 +34,9 @@ runs:
         target="$target.exe"
       fi
 
-      go install "$INPUT_PACKAGE_PATH@$INPUT_VERSION"
+      go install "${{ inputs.package-path }}@${{ inputs.version }}"
       file="$(find "$bindir" -type f -executable -name "$target")"
-      mv "$file" "$INPUT_PATH/$target"
-
-      echo name="$name" >>"$GITHUB_OUTPUT"
+      mv "$file" "${{ inputs.path }}/$target"
       echo target="$target" >>"$GITHUB_OUTPUT"
     id: build
+    shell: bash
