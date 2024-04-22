@@ -24,6 +24,8 @@ jobs:
         exclude:
         - os: darwin
           arch: amd64
+        - os: windows
+          arch: arm64
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v4
