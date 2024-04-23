@@ -60,6 +60,7 @@ jobs:
       with:
         path: assets
         merge-multiple: true
-      run: gh release upload "$GITHUB_REF_NAME" assets/*
+    - name: Upload the assets to the release
+      run: gh release upload -R "$GITHUB_REPOSITORY" "$GITHUB_REF_NAME" assets/*
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
