@@ -1,0 +1,46 @@
+name: Upload the asset
+description: Upload build artifacts as an asset.
+inputs:
+  tag:
+    description: The name of the tag.
+    required: true
+  path:
+    description: A file, directory or wildcard pattern that describes what to upload.
+    required: true
+  name:
+    description: The name of the asset you want to upload.
+    required: true
+  format:
+    description: |
+      Archive file format.
+      Available formats:
+      - zip
+      - tgz
+      - tar.gz
+    required: false
+    default: zip
+
+runs:
+  using: composite
+  steps:
+  - name: Set the asset filename to ASSET_NAME
+    run: echo "ASSET_NAME=$INPUT_NAME.$INPUT_FORMAT" >>"$GITHUB_ENV"
+    env:
+      INPUT_NAME: ${{ inputs.name }}
+      INPUT_FORMAT: ${{ inputs.format }}
+    shell: bash
+  - name: Create the asset consists of the build artifacts
+    run: tar zcf "$ASSET_NAME" ${{ inputs.path }}
+    shell: bash
+    if: inputs.format == 'tgz' || inputs.format == 'tar.gz'
+  - name: Create the asset consists of the build artifacts
+    run: zip -r "$ASSET_NAME" ${{ inputs.path }}
+    shell: bash
+    if: inputs.format == 'zip'
+
+  # The secrets context is not available for composite actions.
+  # https://docs.github.com/en/actions/learn-github-actions/contexts#secrets-context
+  - uses: actions/upload-artifact@v4
+    with:
+      name: ${{ env.ASSET_NAME }}
+      path: ${{ env.ASSET_NAME }}

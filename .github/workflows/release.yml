@@ -6,8 +6,6 @@ on:
     - published
 jobs:
   release:
-    permissions:
-      contents: write
     strategy:
       matrix:
         os:
@@ -32,30 +30,36 @@ jobs:
     - uses: actions/setup-go@v5
       with:
         go-version: stable
-    - name: build
+    - name: Build the package
       uses: ./.github/actions/go-install
       with:
-        #package-path: ${{ github.repository }}
+        package-path: github.com/lufia/dotsync
         version: ${{ github.ref_name }}
       env:
         GOOS: ${{ matrix.os }}
         GOARCH: ${{ matrix.arch }}
       id: build
-    - name: construct the archive name
-      run: |
-        name="$(basename "${{ github.repository }}")"
-        echo archive="$name-${{ github.ref_name }}.${{ matrix.os }}-${{ matrix.arch }}.${{ matrix.format }}" >>"$GITHUB_OUTPUT"
-      id: prep
-    - name: pack
-      uses: ./.github/actions/go-pack
+    - name: Create the asset consists of the build artifacts
+      uses: ./.github/actions/upload-asset
       with:
+        tag: ${{ github.ref_name }}
         path: >
           ${{ steps.build.outputs.target }}
           LICENSE
           README.md
+        name: dotsync-${{ github.ref_name }}.${{ matrix.os }}-${{ matrix.arch }}
         format: ${{ matrix.format }}
-        archive: ${{ steps.prep.outputs.archive }}
-    - name: release
-      run: gh release upload "$GITHUB_REF_NAME" "${{ steps.prep.outputs.archive }}"
+
+  upload:
+    needs: release
+    permissions:
+      contents: write
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        path: assets
+        merge-multiple: true
+      run: gh release upload "$GITHUB_REF_NAME" assets/*
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
