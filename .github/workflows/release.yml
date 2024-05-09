@@ -31,16 +31,17 @@ jobs:
       with:
         go-version: stable
     - name: Build the package
-      uses: ./.github/actions/go-install
+      uses: lufia/workflows/.github/actions/go-install@v0.4.0
       with:
         package-path: github.com/lufia/dotsync
         version: ${{ github.ref_name }}
       env:
         GOOS: ${{ matrix.os }}
         GOARCH: ${{ matrix.arch }}
+        CGO_ENABLED: 0
       id: build
     - name: Create the asset consists of the build artifacts
-      uses: ./.github/actions/upload-asset
+      uses: lufia/workflows/.github/actions/upload-asset@v0.4.0
       with:
         tag: ${{ github.ref_name }}
         path: >
