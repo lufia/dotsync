@@ -110,7 +110,9 @@ func (r *Repository) CopyFile(dest, p string, opts CopyFileOptions) error {
 	}
 	s := fmt.Sprintf("%x %o %s\n", h.Sum(nil), mode, dest)
 	file := r.StateFile(slug)
-	return writeFile(file, []byte(s), FileOptions{})
+	return writeFile(file, []byte(s), FileOptions{
+		MkdirAll: true,
+	})
 }
 
 func isDir(name string) (bool, error) {
