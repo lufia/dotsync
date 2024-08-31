@@ -22,6 +22,8 @@ $ dotsync changes
 
 $ dotsync pull [-n]
 
+$ dotsync push [-n] [path ...]
+
 $ dotsync uninstall [-f] [path ...]
 
 $ dotsync export
@@ -36,6 +38,8 @@ $ dotsync export
 `dotsync changes` prints locally changed filenames.
 
 `dotsync pull` applies all updates from sources. If *-n* option is passed, it prints filenames but it don't update them.
+
+`dotsync push` updates sources with local changes. If *-n* option is passed, it prints filenames but it don't update them.
 
 ## FILES
 

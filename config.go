@@ -163,3 +163,58 @@ func ReadHash(file string) (string, error) {
 	}
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
+
+type CopyFileOptions struct {
+	MkdirAll  bool
+	Overwrite bool
+}
+
+// CopyFile copies file content and permission from src to dest.
+// It returns the hash score of src, or an error if failed.
+func CopyFile(dest, src string, opts CopyFileOptions) ([]byte, os.FileMode, error) {
+	fin, err := os.Open(src)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer fin.Close()
+
+	dir := filepath.Dir(dest)
+	if opts.MkdirAll {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return nil, 0, err
+		}
+	}
+	flags := os.O_WRONLY | os.O_CREATE
+	if opts.Overwrite {
+		flags |= os.O_TRUNC
+	} else {
+		flags |= os.O_EXCL
+	}
+	fi, err := os.Stat(src)
+	if err != nil {
+		return nil, 0, err
+	}
+	mode := fi.Mode() & os.ModePerm
+	fout, err := os.OpenFile(dest, flags, mode)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return nil, 0, fmt.Errorf("'%s' file does not exist", dest)
+		}
+		if errors.Is(err, os.ErrExist) {
+			return nil, 0, fmt.Errorf("'%s' file already exist", dest)
+		}
+		return nil, 0, err
+	}
+	defer fout.Close()
+
+	h := sha256.New()
+	o := io.MultiWriter(h, fout)
+	io.Copy(o, fin)
+	if err := fout.Sync(); err != nil {
+		return nil, 0, err
+	}
+	if err := os.Chmod(dest, mode); err != nil {
+		return nil, 0, err
+	}
+	return h.Sum(nil), mode, nil
+}
