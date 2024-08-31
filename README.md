@@ -11,6 +11,10 @@ dotfiles manager without symlinks
 
 ## Getting Started
 
+```sh
+go install github.com/lufia/dotsync@latest
+```
+
 ## SYNOPSIS
 
 ```console
