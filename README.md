@@ -20,6 +20,8 @@ $ dotsync install [-f] source [...] dest
 
 $ dotsync changes
 
+$ dotsync diff [path ...]
+
 $ dotsync pull [-n]
 
 $ dotsync push [-n] [path ...]
@@ -36,6 +38,8 @@ $ dotsync export
 `dotsync uninstall` unlink and remove *path*. When *-f* option is passed, it removes *path* even if file is locally modified.
 
 `dotsync changes` prints locally changed filenames.
+
+`dotsync diff` prints locally changes.
 
 `dotsync pull` applies all updates from sources. If *-n* option is passed, it prints filenames but it don't update them.
 
