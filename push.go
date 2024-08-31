@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -57,7 +58,7 @@ func runPush(r *Repository, args []string, w io.Writer) error {
 			if err != nil {
 				return err
 			}
-			state.Hash = string(h)
+			state.Hash = hex.EncodeToString(h)
 			state.Mode = mode
 		}
 		ok, mode, err := isModeEqual(state.Target, state.Mode)
