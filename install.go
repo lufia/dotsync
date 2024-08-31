@@ -1,8 +1,6 @@
 package main
 
 import (
-	"crypto/sha256"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -43,26 +41,16 @@ func runInstall(r *Repository, args []string, w io.Writer) error {
 	return nil
 }
 
-type CopyFileOptions struct {
-	MkdirAll  bool
-	Overwrite bool
-}
-
 func (r *Repository) CopyFile(dest, p string, opts CopyFileOptions) error {
 	slug, err := r.Slug(p)
 	if err != nil {
 		return err
 	}
+
 	dest, err = filepath.Abs(dest)
 	if err != nil {
 		return err
 	}
-	fin, err := os.Open(p)
-	if err != nil {
-		return err
-	}
-	defer fin.Close()
-
 	ok, err := isDir(dest)
 	if err != nil {
 		return err
@@ -70,45 +58,12 @@ func (r *Repository) CopyFile(dest, p string, opts CopyFileOptions) error {
 	if ok {
 		dest = filepath.Join(dest, filepath.Base(p))
 	}
-	dir := filepath.Dir(dest)
-	if opts.MkdirAll {
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			return err
-		}
-	}
-	flags := os.O_WRONLY | os.O_CREATE
-	if opts.Overwrite {
-		flags |= os.O_TRUNC
-	} else {
-		flags |= os.O_EXCL
-	}
-	fi, err := os.Stat(p)
+	h, mode, err := CopyFile(dest, p, opts)
 	if err != nil {
 		return err
 	}
-	mode := fi.Mode() & os.ModePerm
-	fout, err := os.OpenFile(dest, flags, mode)
-	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return fmt.Errorf("'%s' file does not exist", dest)
-		}
-		if errors.Is(err, os.ErrExist) {
-			return fmt.Errorf("'%s' file already exist", dest)
-		}
-		return err
-	}
-	defer fout.Close()
 
-	h := sha256.New()
-	o := io.MultiWriter(h, fout)
-	io.Copy(o, fin)
-	if err := fout.Sync(); err != nil {
-		return err
-	}
-	if err := os.Chmod(dest, mode); err != nil {
-		return err
-	}
-	s := fmt.Sprintf("%x %o %s\n", h.Sum(nil), mode, dest)
+	s := fmt.Sprintf("%x %o %s\n", h, mode, dest)
 	file := r.StateFile(slug)
 	return writeFile(file, []byte(s), FileOptions{
 		MkdirAll: true,

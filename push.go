@@ -33,16 +33,27 @@ func runPush(r *Repository, args []string, w io.Writer) error {
 			return err
 		}
 		if h != state.Hash {
-			fmt.Printf("cp %q %q\n", state.Target, state.Source)
+			h, mode, err := CopyFile(state.Source, state.Target, CopyFileOptions{
+				Overwrite: true,
+			})
+			if err != nil {
+				return err
+			}
+			state.Hash = string(h)
+			state.Mode = mode
 		}
 		ok, mode, err := isModeEqual(state.Target, state.Mode)
 		if err != nil {
 			return err
 		}
 		if !ok {
-			fmt.Printf("chmod %o %q\n", mode, state.Source)
+			if err := os.Chmod(state.Source, mode); err != nil {
+				return err
+			}
+			state.Mode = mode
 		}
-		return nil
+		s := fmt.Sprintf("%s %o %s\n", state.Hash, state.Mode, state.Target)
+		return writeFile(p, []byte(s), FileOptions{})
 	})
 	if err != nil {
 		if os.IsNotExist(err) {
