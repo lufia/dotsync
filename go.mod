@@ -7,5 +7,5 @@ toolchain go1.24.1
 require (
 	github.com/google/go-cmp v0.7.0
 	github.com/sergi/go-diff v1.4.0
-	golang.org/x/tools v0.34.0
+	golang.org/x/tools v0.35.0
 )
