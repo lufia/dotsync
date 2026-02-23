@@ -9,6 +9,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/sergi/go-diff/diffmatchpatch"
 )
 
@@ -56,6 +57,13 @@ func runDiff(r *Repository, args []string, w io.Writer) error {
 	})
 }
 
+var (
+	fileColor   = color.New(color.FgHiWhite, color.Bold)
+	metaColor   = color.New(color.FgCyan)
+	addColor    = color.New(color.FgGreen)
+	deleteColor = color.New(color.FgRed)
+)
+
 func diffFiles(w io.Writer, f1, f2 string) error {
 	t1, err := os.ReadFile(f1)
 	if err != nil {
@@ -65,8 +73,8 @@ func diffFiles(w io.Writer, f1, f2 string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Fprintf(w, "--- %s\n", f1)
-	fmt.Fprintf(w, "+++ %s\n", f2)
+	fileColor.Fprintf(w, "--- %s\n", f1)
+	fileColor.Fprintf(w, "+++ %s\n", f2)
 	d := diffmatchpatch.New()
 	a, b, c := d.DiffLinesToChars(string(t1), string(t2))
 	diffs := d.DiffCharsToLines(d.DiffMain(a, b, false), c)
@@ -84,18 +92,18 @@ type Hunk struct {
 }
 
 func (h *Hunk) WriteTo(w io.Writer) (int64, error) {
-	fmt.Fprintf(w, "@@ -%d,%d +%d,%d @@\n", h.oldLine, h.oldLen, h.newLine, h.newLen)
+	metaColor.Fprintf(w, "@@ -%d,%d +%d,%d @@\n", h.oldLine, h.oldLen, h.newLine, h.newLen)
 	var written int
 	for _, d := range h.diffs {
 		switch d.kind {
 		case -1:
-			n, _ := fmt.Fprintf(w, "-%s\n", d.text)
+			n, _ := deleteColor.Fprintf(w, "-%s\n", d.text)
 			written += n
 		case 0:
 			n, _ := fmt.Fprintf(w, " %s\n", d.text)
 			written += n
 		case 1:
-			n, _ := fmt.Fprintf(w, "+%s\n", d.text)
+			n, _ := addColor.Fprintf(w, "+%s\n", d.text)
 			written += n
 		}
 	}
