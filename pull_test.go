@@ -11,6 +11,7 @@ func TestRunPull(t *testing.T) {
 		label  string
 	}{
 		{"testdata/pull/arrived.script", "copy updated files"},
+		{"testdata/pull/missing.script", "missing files show warnings but doesn't stop"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.label, func(t *testing.T) {
