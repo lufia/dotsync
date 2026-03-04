@@ -30,6 +30,10 @@ func runPull(r *Repository, args []string, w io.Writer) error {
 		}
 		h, err := ReadHash(state.Source)
 		if err != nil {
+			if os.IsNotExist(err) {
+				log.Printf("%s: does not exist\n", state.Source)
+				return nil
+			}
 			return err
 		}
 		ok, _, err := isModeEqual(state.Source, state.Mode)
@@ -42,10 +46,14 @@ func runPull(r *Repository, args []string, w io.Writer) error {
 
 		h, err = ReadHash(state.Target)
 		if err != nil {
+			if os.IsNotExist(err) {
+				log.Printf("%s: does not exist\n", state.Target)
+				return nil
+			}
 			return err
 		}
 		if h != state.Hash {
-			log.Printf("%s: locally modified; will not overwrite\n", p)
+			log.Printf("%s: locally modified; will not overwrite\n", state.Source)
 			return nil
 		}
 		if *dryRun {
