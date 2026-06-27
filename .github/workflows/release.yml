@@ -1,11 +1,12 @@
 name: Release
 
 on:
-  release:
-    types:
-    - published
+  push:
+    tags:
+    - v[0-9]+.[0-9]+**
+
 jobs:
-  release:
+  build:
     strategy:
       matrix:
         os:
@@ -51,8 +52,8 @@ jobs:
         name: dotsync-${{ github.ref_name }}.${{ matrix.os }}-${{ matrix.arch }}
         format: ${{ matrix.format }}
 
-  upload:
-    needs: release
+  release:
+    needs: build
     permissions:
       contents: write
     runs-on: ubuntu-22.04
@@ -61,7 +62,11 @@ jobs:
       with:
         path: assets
         merge-multiple: true
-    - name: Upload the assets to the release
-      run: gh release upload -R "$GITHUB_REPOSITORY" "$GITHUB_REF_NAME" assets/*
+    - run: |
+        gh release create -R "$GITHUB_REPOSITORY" "$TAG" \
+          --title "$TAG" \
+          --generate-notes \
+          --draft assets/*
       env:
+        TAG: ${{ github.ref_name }}
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
